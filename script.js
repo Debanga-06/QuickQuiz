@@ -1,6 +1,6 @@
-// QuickQuiz Main Script - Works with external questions.js file
+// QuickQuiz Main Script 
 
-// Quiz state variables
+
 let currentQuiz = [];
 let currentQuestion = 0;
 let score = 0;
@@ -12,12 +12,12 @@ let totalTime = 0;
 let quizMode = 'quick';
 let startTime = null;
 
-// Question management for large datasets
+
 let questionPool = [];
 let usedQuestions = new Set();
 let dailyQuestionCache = null;
 
-// Memory-based storage (since localStorage is not available)
+
 const memoryStorage = {
     dailyStreak: 0,
     lastDailyDate: '',
@@ -28,7 +28,7 @@ const memoryStorage = {
     dailyQuestionsCache: null
 };
 
-// Initialize app
+
 function initializeApp() {
     loadQuestionPool();
     updateStreakDisplay();
@@ -36,10 +36,10 @@ function initializeApp() {
     checkDailyQuizStatus();
 }
 
-// Load questions from external questions.js file
+
 function loadQuestionPool() {
     try {
-        // Check if questions array is available from questions.js
+       
         if (typeof questions !== 'undefined' && Array.isArray(questions)) {
             questionPool = questions;
             console.log(`Loaded ${questionPool.length} questions from questions.js`);
@@ -49,7 +49,7 @@ function loadQuestionPool() {
             return;
         }
 
-        // Load used questions from memory to avoid repetition
+        
         loadUsedQuestions();
 
     } catch (error) {
@@ -58,7 +58,7 @@ function loadQuestionPool() {
     }
 }
 
-// Efficient question selection for large datasets
+
 function getRandomQuestions(count = 10, excludeUsed = false, customPool = null) {
     let pool = customPool || questionPool;
     if (!pool || pool.length === 0) {
@@ -72,13 +72,13 @@ function getRandomQuestions(count = 10, excludeUsed = false, customPool = null) 
         availableQuestions = pool.filter(q => !usedQuestions.has(q.question));
 
         if (availableQuestions.length < count) {
-            usedQuestions.clear(); // reset if not enough
+            usedQuestions.clear(); 
             saveUsedQuestions();
             availableQuestions = [...pool];
         }
     }
 
-    // Shuffle available questions
+    
     for (let i = availableQuestions.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [availableQuestions[i], availableQuestions[j]] = [availableQuestions[j], availableQuestions[i]];
@@ -94,28 +94,28 @@ function getRandomQuestions(count = 10, excludeUsed = false, customPool = null) 
     return selected;
 }
 
-// Generate daily quiz with consistent questions for the day
+
 function generateDailyQuiz() {
     const today = getTodayString();
     const cachedDaily = memoryStorage.dailyQuestionsCache;
 
-    // Return cached questions if they exist for today
+   
     if (cachedDaily && cachedDaily.date === today) {
         return cachedDaily.questions;
     }
 
-    // Generate new daily questions
+    
     const todayNum = new Date().getTime();
-    const seed = parseInt(todayNum.toString().slice(-8)); // Use last 8 digits as seed
+    const seed = parseInt(todayNum.toString().slice(-8)); 
 
-    // Seeded random function for consistent daily questions
+    
     let random = seed;
     function seededRandom() {
         random = (random * 9301 + 49297) % 233280;
         return random / 233280;
     }
 
-    // Select questions using seeded random
+    
     const shuffled = [...questionPool];
     for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(seededRandom() * (i + 1));
@@ -124,7 +124,7 @@ function generateDailyQuiz() {
 
     const dailyQuestions = shuffled.slice(0, 10);
 
-    // Cache the daily questions in memory
+    
     memoryStorage.dailyQuestionsCache = {
         date: today,
         questions: dailyQuestions
@@ -133,7 +133,7 @@ function generateDailyQuiz() {
     return dailyQuestions;
 }
 
-// Load and save used questions for better variety
+
 function saveUsedQuestions() {
     localStorage.setItem('usedQuestions', JSON.stringify([...usedQuestions]));
 }
@@ -142,14 +142,14 @@ function loadUsedQuestions() {
     const stored = localStorage.getItem('usedQuestions');
     usedQuestions = new Set(stored ? JSON.parse(stored) : []);
 
-    // Optional cleanup if too many used
+   
     if (usedQuestions.size > questionPool.length * 0.8) {
         usedQuestions.clear();
         saveUsedQuestions();
     }
 }
 
-// Memory storage functions (replacing localStorage)
+
 function getMemoryItem(key, defaultValue = 0) {
     return memoryStorage[key] !== undefined ? memoryStorage[key] : defaultValue;
 }
@@ -172,7 +172,7 @@ function updateStreakDisplay() {
         streakElement.textContent = currentStreak;
     }
 
-    // Check if streak is still valid
+    
     if (lastDate) {
         const lastDateObj = new Date(lastDate);
         const todayObj = new Date(today);
@@ -180,7 +180,7 @@ function updateStreakDisplay() {
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
         if (diffDays > 1) {
-            // Streak broken, reset to 0
+            
             setMemoryItem('dailyStreak', 0);
             if (streakElement) {
                 streakElement.textContent = '0';
@@ -239,11 +239,11 @@ function updateDailyStreak(completed = false) {
         let newStreak = currentStreak;
 
         if (lastDate === today) {
-            // Already completed today
+           
             return { streak: currentStreak, isNew: false };
         }
 
-        // Check if this continues the streak
+        
         if (lastDate) {
             const lastDateObj = new Date(lastDate);
             const todayObj = new Date(today);
@@ -251,22 +251,22 @@ function updateDailyStreak(completed = false) {
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
             if (diffDays === 1) {
-                // Consecutive day
+                
                 newStreak = currentStreak + 1;
             } else if (diffDays > 1) {
-                // Streak broken, start new
+                
                 newStreak = 1;
             }
         } else {
-            // First time
+            
             newStreak = 1;
         }
 
-        // Update memory storage
+        
         setMemoryItem('dailyStreak', newStreak);
         setMemoryItem('lastDailyDate', today);
 
-        // Update best streak if needed
+       
         if (newStreak > bestStreak) {
             setMemoryItem('bestStreak', newStreak);
         }
@@ -290,16 +290,16 @@ function startQuiz(mode = 'quick') {
     totalTime = 0;
     startTime = Date.now();
 
-    // Get selected category from dropdown
+    
     const selectedCategory = document.getElementById('category-select')?.value || 'All';
 
-    // Filter by category if not 'All'
+    
     let filteredPool = questionPool;
     if (selectedCategory !== 'All') {
         filteredPool = questionPool.filter(q => q.category === selectedCategory);
     }
 
-    // Use smart question selection to avoid repetition
+    
     currentQuiz = getRandomQuestions(10, true, filteredPool);
 
     const welcomeScreen = document.getElementById('welcome-screen');
@@ -328,7 +328,7 @@ function startTimer() {
 
         if (timeLeft <= 0) {
             clearInterval(timer);
-            // Auto-submit with no answer
+           
             if (!answered) {
                 selectAnswer(-1, null);
             }
@@ -366,7 +366,7 @@ function loadQuestion() {
     selectedAnswer = null;
     answered = false;
 
-    // Update progress
+    
     const progress = (currentQuestion / currentQuiz.length) * 100;
     const progressFill = document.getElementById('progress-fill');
     const progressText = document.getElementById('progress-text');
@@ -378,13 +378,13 @@ function loadQuestion() {
         progressText.textContent = `Question ${currentQuestion + 1} of ${currentQuiz.length}`;
     }
 
-    // Load question
+    
     const questionText = document.getElementById('question-text');
     if (questionText) {
         questionText.textContent = question.question;
     }
 
-    // Load options
+    
     const optionsContainer = document.getElementById('options-container');
     if (optionsContainer) {
         optionsContainer.innerHTML = '';
@@ -398,20 +398,20 @@ function loadQuestion() {
         });
     }
 
-    // Hide next button
+    
     const nextBtn = document.getElementById('next-btn');
     if (nextBtn) {
         nextBtn.style.display = 'none';
     }
 
-    // Add fade-in animation
+  
     const questionCard = document.getElementById('question-card');
     if (questionCard) {
         questionCard.classList.remove('fade-in');
         setTimeout(() => questionCard.classList.add('fade-in'), 10);
     }
 
-    // Start timer
+   
     startTimer();
 }
 
@@ -425,21 +425,21 @@ function selectAnswer(answerIndex, optionElement) {
     const question = currentQuiz[currentQuestion];
     const options = document.querySelectorAll('.option');
 
-    // Disable all options
+    
     options.forEach(option => option.style.pointerEvents = 'none');
 
-    // Mark selected option if there was one
+    
     if (optionElement) {
         optionElement.classList.add('selected');
     }
 
     setTimeout(() => {
-       // Find correct index using answer text
+      
 const correctIndex = question.options.findIndex(opt =>
     opt.trim().toLowerCase() === question.answer.trim().toLowerCase()
 );
 
-// Highlight correct/incorrect
+
 options.forEach((option, index) => {
     if (index === correctIndex) {
         option.classList.add('correct');
@@ -448,7 +448,7 @@ options.forEach((option, index) => {
     }
 });
 
-// Update score
+
 if (selectedAnswer === correctIndex) {
     score++;
     const currentScoreElement = document.getElementById('current-score');
@@ -460,13 +460,13 @@ if (selectedAnswer === correctIndex) {
     totalTime += (30 - timeLeft);
 }
 
-        // Calculate time bonus (faster answers get more points)
+        
         if (selectedAnswer === question.correct) {
-            const timeBonus = Math.max(0, timeLeft * 2); // 2 points per second remaining
+            const timeBonus = Math.max(0, timeLeft * 2); 
             totalTime += (30 - timeLeft);
         }
 
-        // Show next button
+        
         setTimeout(() => {
             const nextBtn = document.getElementById('next-btn');
             if (nextBtn) {
@@ -503,7 +503,7 @@ function showResults() {
         finalScoreElement.textContent = `${score}/${currentQuiz.length} (${percentage}%)`;
     }
 
-    // Performance text
+    
     let performanceText = '';
     if (percentage >= 90) {
         performanceText = '🏆 Outstanding! You\'re a quiz master!';
@@ -527,11 +527,11 @@ function showResults() {
         timeStatsElement.textContent = `Average time per question: ${avgTime}s | Total time: ${totalQuizTime}s`;
     }
 
-    // Update statistics
+    
     const currentCompleted = getMemoryItem('totalCompleted');
     setMemoryItem('totalCompleted', currentCompleted + 1);
 
-    // Handle daily streak
+    
     const streakResult = updateDailyStreak(true);
     const streakUpdateElement = document.getElementById('streak-update');
 
@@ -544,7 +544,7 @@ function showResults() {
             streakUpdateElement.innerHTML = streakMessage;
             streakUpdateElement.style.display = 'block';
 
-            // Update results title for daily quiz
+            
             const resultsTitle = document.getElementById('results-title');
             if (resultsTitle) {
                 resultsTitle.textContent = '🎉 Daily Challenge Complete!';
@@ -557,7 +557,7 @@ function showResults() {
         }
     }
 
-    // Update progress to 100%
+ 
     const progressFill = document.getElementById('progress-fill');
     if (progressFill) {
         progressFill.style.width = '100%';
@@ -582,13 +582,13 @@ function restartQuiz() {
     if (resultsScreen) resultsScreen.classList.add('hidden');
     if (welcomeScreen) welcomeScreen.classList.remove('hidden');
 
-    // Refresh stats and streak display
+   
     updateStreakDisplay();
     updateStats();
     checkDailyQuizStatus();
 }
 
-// Utility function to get random questions (can be called externally)
+
 function getRandomQuestions(count = 10, excludeUsed = false, customPool = null) {
     let pool = customPool || questionPool;
     if (!pool || pool.length === 0) {
@@ -629,23 +629,23 @@ function getRandomQuestions(count = 10, excludeUsed = false, customPool = null) 
     return selected;
 }
 
-// Initialize app when page loads
+
 document.addEventListener('DOMContentLoaded', function () {
     console.log('QuickQuiz main script loaded');
-    // Small delay to ensure questions.js is loaded
+    
     setTimeout(() => {
         initializeApp();
         console.log('QuickQuiz initialized successfully!');
     }, 100);
 });
 
-// Update daily quiz status at midnight
+
 setInterval(() => {
     checkDailyQuizStatus();
     updateStreakDisplay();
-}, 60000); // Check every minute
+}, 60000); 
 
-// Export functions for external use (if needed)
+
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         startQuiz,
