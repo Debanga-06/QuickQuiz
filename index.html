@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickQuiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="quiz-container">
+        <h1>🧠 QuickQuiz</h1>
+
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="welcome-screen">
+            <h2>Welcome to QuickQuiz!</h2>
+            <p>Test your knowledge with our interactive multiple choice questions. Choose your quiz mode and start your
+                learning journey!</p>
+
+            <!-- Daily Streak Display -->
+            <div class="daily-streak" id="daily-streak">
+                <h3>🔥 Daily Streak</h3>
+                <div class="streak-number" id="streak-number">0</div>
+                <div class="daily-status" id="daily-status">
+                    <div id="streak-status">Complete today's quiz to maintain your streak!</div>
+                </div>
+            </div>
+
+            <label for="category-select">Select Category:</label>
+            <select id="category-select">
+                <option value="All">All</option>
+                <option value="dsa">DSA</option>
+                <option value="os">OS</option>
+                <option value="dbms">DBMS</option>
+                <option value="hr">HR</option>
+                <option value="aptitude">Aptitude</option>
+            </select>
+
+            <div class="quiz-modes">
+                <div class="mode-card">
+                    <h4>🎯 Quick Quiz</h4>
+                    <p>10 random questions, 30 seconds each</p>
+                    <button class="btn" onclick="startQuiz('quick')">Start Quick Quiz</button>
+                </div>
+                <div class="mode-card">
+                    <h4>📅 Daily Challenge</h4>
+                    <p>Special daily quiz with unique questions</p>
+                    <button class="btn daily" id="daily-btn" onclick="startQuiz('daily')">Daily Challenge</button>
+                </div>
+            </div>
+
+            <div class="quiz-stats">
+                <div class="stat">
+                    <div class="stat-number">10</div>
+                    <div class="stat-label">Questions</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">30s</div>
+                    <div class="stat-label">Per Question</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="best-streak">0</div>
+                    <div class="stat-label">Best Streak</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="total-completed">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Interface -->
+        <div id="quiz-interface" class="hidden">
+            <div class="quiz-header">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">Question 1 of 10</div>
+                </div>
+                <div class="timer" id="timer">30</div>
+                <div class="score">Score: <span id="current-score">0</span></div>
+            </div>
+
+            <div class="question-card fade-in" id="question-card">
+                <div class="question" id="question-text"></div>
+                <div class="options" id="options-container"></div>
+                <button class="btn" id="next-btn" onclick="nextQuestion()" style="display: none;">Next Question</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="hidden">
+            <div class="results">
+                <h2 id="results-title">🎉 Quiz Complete!</h2>
+                <div class="final-score" id="final-score"></div>
+                <div class="performance" id="performance-text"></div>
+                <div class="time-stats" id="time-stats"></div>
+                <div id="streak-update" class="daily-status" style="margin: 20px 0;"></div>
+                <button class="btn" onclick="restartQuiz()"
+                    style="background: rgba(255,255,255,0.2); margin-top: 20px;">Back to Home</button>
+            </div>
+        </div>
+    </div>
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
