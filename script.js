@@ -1,4 +1,4 @@
-// QuickQuiz Main Script 
+//  Main Script 
 
 
 let currentQuiz = [];
